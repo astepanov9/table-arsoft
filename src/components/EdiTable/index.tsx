@@ -11,72 +11,39 @@ import {
 import { instance } from '../../utils';
 import Button from '../Button';
 import Modal from '../Modal';
-import Pagination from '../Pagination';
+import usePagination from '../../hooks/usePagination';
+import { Data } from './EdiTable.types';
+import { EdiTableType } from './EdiTable.types';
+import { ModalDataType } from './EdiTable.types';
 
-export interface Data {
-  company: string;
-  id: string;
-  images: string;
-  lastname: string;
-  name: string;
-  roles: string;
-  username: string;
-}
-
-interface EdiTable {
-  columns: {
-    field: string;
-    fieldName: string;
-  }[];
-}
-
-export interface ModalType {
-  action: '' | 'delete' | 'add';
-  rowDeleteId: string;
-}
-
-const EdiTable: React.FC<EdiTable> = ({ columns }) => {
+const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [rowIDToEdit, setRowIDToEdit] = React.useState<string | undefined>(undefined);
   const [rowsState, setRowsState] = React.useState<Data[]>([]);
   const [editedRow, setEditedRow] = React.useState<any>();
   const [isOpen, setIsOpen] = React.useState(false);
-  const [modalType, setModalType] = React.useState<ModalType>({ action: '', rowDeleteId: '' });
+  const [modalType, setModalType] = React.useState<ModalDataType>({ action: '', rowDeleteId: '' });
   const [width, setWidth] = React.useState(window.innerWidth);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [dataLength, setDataLength] = React.useState(0);
-  const [pageCount, setPageCount] = React.useState(0);
-  const [sort, setSort] = React.useState('');
 
-  const itemsPerPage = 4;
+  const { firstContentIndex, lastContentIndex, nextPage, prevPage, page, setPage, totalPages } =
+    usePagination({
+      contentPerPage: 4,
+      count: rowsState.length,
+    });
 
   React.useEffect(() => {
     instance
       .get(`/users`)
       .then((res) => {
-        setDataLength(res.data.length);
-        setPageCount(Math.ceil(dataLength / itemsPerPage));
-      })
-      .catch((error) => console.error(error));
-  }, [dataLength]);
-
-  React.useEffect(() => {
-    instance
-      .get(`/users/?page=${currentPage}&limit=${itemsPerPage}&sortBy=${sort}&order=asc`)
-      .then((res) => {
         setRowsState(res.data);
       })
       .catch((error) => console.error(error));
-  }, [currentPage, sort]);
+  }, []);
 
   React.useEffect(() => {
     window.addEventListener('resize', updateWidthAndHeight);
     return () => window.removeEventListener('resize', updateWidthAndHeight);
   });
-
-  const onChangePage = (number: number) => {
-    setCurrentPage(number);
-  };
 
   const updateWidthAndHeight = () => {
     setWidth(window.innerWidth);
@@ -148,6 +115,19 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
     });
   };
 
+  const sortField = (parametr: string) => {
+    if (parametr === 'name')
+      setRowsState([...rowsState].sort((a, b) => (a.name < b.name ? -1 : 1)));
+    if (parametr === 'lastname')
+      setRowsState([...rowsState].sort((a, b) => (a.lastname < b.lastname ? -1 : 1)));
+    if (parametr === 'username')
+      setRowsState([...rowsState].sort((a, b) => (a.username < b.username ? -1 : 1)));
+    if (parametr === 'roles')
+      setRowsState([...rowsState].sort((a, b) => (a.roles < b.roles ? -1 : 1)));
+    if (parametr === 'company')
+      setRowsState([...rowsState].sort((a, b) => (a.company < b.company ? -1 : 1)));
+  };
+
   return (
     <div className="p-1.5 w-full inline-block align-middle">
       <div className="border rounded-lg overflow-x-auto">
@@ -164,7 +144,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {column.field === 'name' ? (
                     <ArrowsUpDownIcon
                       className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => setSort(column.field)}
+                      onClick={() => sortField('name')}
                     />
                   ) : (
                     ''
@@ -172,7 +152,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {column.field === 'lastname' ? (
                     <ArrowsUpDownIcon
                       className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => setSort(column.field)}
+                      onClick={() => sortField('lastname')}
                     />
                   ) : (
                     ''
@@ -180,7 +160,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {column.field === 'username' ? (
                     <ArrowsUpDownIcon
                       className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => setSort(column.field)}
+                      onClick={() => sortField('username')}
                     />
                   ) : (
                     ''
@@ -188,7 +168,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {column.field === 'company' ? (
                     <ArrowsUpDownIcon
                       className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => setSort(column.field)}
+                      onClick={() => sortField('company')}
                     />
                   ) : (
                     ''
@@ -196,7 +176,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {column.field === 'roles' ? (
                     <ArrowsUpDownIcon
                       className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => setSort(column.field)}
+                      onClick={() => sortField('roles')}
                     />
                   ) : (
                     ''
@@ -206,7 +186,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {rowsState.map((row, i) => (
+            {rowsState.slice(firstContentIndex, lastContentIndex).map((row, i) => (
               <tr key={row.id}>
                 <td className="px-3 py-3 text-sm font-medium text-gray-800 whitespace-nowrap">
                   {i + 1}
@@ -216,19 +196,19 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                     <input
                       type="text"
                       className="
-                    block
-                    w-full
-                    px-2
-                    py-1
-                    text-sm
-                    text-gray-800
-                    bg-white bg-clip-padding
-                    border border-solid border-gray-300
-                    rounded
-                    transition
-                    ease-in-out
-                    m-0
-                    focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                  block
+                  w-full
+                  px-2
+                  py-1
+                  text-sm
+                  text-gray-800
+                  bg-white bg-clip-padding
+                  border border-solid border-gray-300
+                  rounded
+                  transition
+                  ease-in-out
+                  m-0
+                  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                       defaultValue={editedRow ? editedRow.name : row.name}
                       id={row.id}
                       name="name"
@@ -243,19 +223,19 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                     <input
                       type="text"
                       className="
-                  block
-                  w-full
-                  px-2
-                  py-1
-                  text-sm
-                  text-gray-800
-                  bg-white bg-clip-padding
-                  border border-solid border-gray-300
-                  rounded
-                  transition
-                  ease-in-out
-                  m-0
-                  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                block
+                w-full
+                px-2
+                py-1
+                text-sm
+                text-gray-800
+                bg-white bg-clip-padding
+                border border-solid border-gray-300
+                rounded
+                transition
+                ease-in-out
+                m-0
+                focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                       defaultValue={editedRow ? editedRow.lastname : row.lastname}
                       id={row.id}
                       name="lastname"
@@ -270,19 +250,19 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                     <input
                       type="text"
                       className="
-                  block
-                  w-full
-                  px-2
-                  py-1
-                  text-sm
-                  text-gray-800
-                  bg-white bg-clip-padding
-                  border border-solid border-gray-300
-                  rounded
-                  transition
-                  ease-in-out
-                  m-0
-                  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                block
+                w-full
+                px-2
+                py-1
+                text-sm
+                text-gray-800
+                bg-white bg-clip-padding
+                border border-solid border-gray-300
+                rounded
+                transition
+                ease-in-out
+                m-0
+                focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                       defaultValue={editedRow ? editedRow.username : row.username}
                       id={row.id}
                       name="username"
@@ -296,19 +276,19 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                   {isEditMode && rowIDToEdit === row.id ? (
                     <select
                       className="form-select appearance-none
-                  block
-                  w-full
-                  px-2
-                  py-1
-                  text-sm
-                  text-gray-800
-                  bg-white bg-clip-padding bg-no-repeat
-                  border border-solid border-gray-300
-                  rounded
-                  transition
-                  ease-in-out
-                  m-0
-                  focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                block
+                w-full
+                px-2
+                py-1
+                text-sm
+                text-gray-800
+                bg-white bg-clip-padding bg-no-repeat
+                border border-solid border-gray-300
+                rounded
+                transition
+                ease-in-out
+                m-0
+                focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                       aria-label="Default select example"
                       defaultValue={row.roles}
                       name="roles"
@@ -325,7 +305,7 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
                 <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">{row.company}</td>
                 <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
                   <div className="flex justify-center">
-                    <a href={row.images} target="_blank">
+                    <a href={row.images} target="_blank" rel="noreferrer">
                       <PhotoIcon className="w-5 h-5 cursor-pointer transition hover:fill-slate-400" />
                     </a>
                   </div>
@@ -360,8 +340,41 @@ const EdiTable: React.FC<EdiTable> = ({ columns }) => {
         </table>
       </div>
       <div className="mt-4 flex justify-between">
-        <Pagination onChangePage={onChangePage} pageCount={pageCount} />
-        <Button name={width < 500 ? '+' : 'Создать пользователя'} onClickButton={() => addUser()} />
+        <div className="flex items-center space-x-4 mr-4">
+          <p className="text-sm text-gray-700 dark:text-gray-400">
+            <span className="font-semibold text-gray-900">{page}</span> /
+            <span className="font-semibold text-gray-900"> {totalPages}</span>
+          </p>
+          <div>
+            <button
+              onClick={prevPage}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-l border"
+            >
+              &larr;
+            </button>
+            {/* @ts-ignore */}
+            {[...Array(totalPages).keys()].map((el) => (
+              <button
+                onClick={() => setPage(el + 1)}
+                key={el}
+                className={`page ${
+                  page === el + 1
+                    ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold py-1 px-4 transition'
+                    : ''
+                } bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 transition border`}
+              >
+                {el + 1}
+              </button>
+            ))}
+            <button
+              onClick={nextPage}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-r border"
+            >
+              &rarr;
+            </button>
+          </div>
+        </div>
+        <Button name={width < 700 ? '+' : 'Создать пользователя'} onClickButton={() => addUser()} />
       </div>
       <Modal
         isOpen={isOpen}

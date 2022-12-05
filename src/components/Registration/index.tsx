@@ -2,17 +2,12 @@ import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 
 import { instance } from '../../utils';
-import { Data } from '../EdiTable';
+import { RegistrationType } from './Registration.types';
+import { Inputs } from './Registration.types';
 
-interface Inputs extends Data {
-  password: string;
-}
 
-interface Registration {
-  modalClose: (arg: boolean) => void;
-}
 
-const Registration: React.FC<Registration> = ({ modalClose }) => {
+const Registration: React.FC<RegistrationType> = ({ modalClose }) => {
   const {
     register,
     handleSubmit,

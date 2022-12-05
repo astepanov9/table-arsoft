@@ -2,20 +2,11 @@ import React from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
 import { instance } from '../../utils';
-import { ModalType } from '../EdiTable';
-import { Data } from '../EdiTable';
 import Button from '../Button';
 import Registration from '../Registration';
+import { ModalType } from './Modal.types';
 
-interface Modal {
-  isOpen: boolean;
-  setIsOpen: (arg: boolean) => void;
-  rowsState: Data[];
-  setRowsState: React.Dispatch<React.SetStateAction<Data[]>>;
-  modalType: ModalType;
-}
-
-const Modal: React.FC<Modal> = ({ isOpen, setIsOpen, rowsState, setRowsState, modalType }) => {
+const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState, modalType }) => {
   const closeModal = () => {
     setIsOpen(false);
   };

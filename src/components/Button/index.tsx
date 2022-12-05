@@ -1,11 +1,8 @@
 import React from 'react';
 
-interface Button {
-  name: string;
-  onClickButton: () => void;
-}
+import { ButtonType } from './Button.types';
 
-const Button: React.FC<Button> = ({ name, onClickButton }) => {
+const Button: React.FC<ButtonType> = ({ name, onClickButton }) => {
   return (
     <button
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded transition"

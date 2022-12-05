@@ -19,7 +19,6 @@ headers: {
     <li>Axios</li>
     <li>Tailwind CSS</li>
     <li>Headles UI</li>
-    <li>React Pagination</li>
     <li>React Hook Form</li>
 </ul>
 <h3>Ссылка:</h3>
