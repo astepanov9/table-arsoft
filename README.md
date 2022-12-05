@@ -22,4 +22,4 @@ headers: {
     <li>React Hook Form</li>
 </ul>
 <h3>Ссылка:</h3>
-<p><a href="#">table-arsoft</a></p>
+<p><a href="http://astepanov9.xyz/">table-arsoft</a></p>
