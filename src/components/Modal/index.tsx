@@ -20,7 +20,7 @@ const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState
 
     instance
       .delete('/users/' + modalType.rowDeleteId)
-      .then((res) => alert('Пользователь ' + res.data.username + ' удален'))
+      .then((res) => console.log('Пользователь ' + res.data.username + ' удален'))
       .catch((error) => console.error(error));
 
     setIsOpen(false);
@@ -112,7 +112,7 @@ const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState
                       Создание пользователя
                     </Dialog.Title>
                     <div className="mt-2">
-                      <Registration modalClose={setIsOpen} />
+                      <Registration modalClose={setIsOpen} rowsState={rowsState} setRowsState={setRowsState} />
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>

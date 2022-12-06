@@ -6,4 +6,6 @@ export interface Inputs extends Data {
 
 export interface RegistrationType {
   modalClose: (arg: boolean) => void;
+  rowsState: Data[];
+  setRowsState: React.Dispatch<React.SetStateAction<Data[]>>;
 }

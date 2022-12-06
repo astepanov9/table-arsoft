@@ -7,11 +7,13 @@ import {
   MinusCircleIcon,
   ArrowsUpDownIcon,
 } from '@heroicons/react/24/solid';
+import { useForm } from 'react-hook-form';
 
 import { instance } from '../../utils';
 import Button from '../Button';
 import Modal from '../Modal';
 import usePagination from '../../hooks/usePagination';
+import Preloader from '../Preloader';
 import { Data } from './EdiTable.types';
 import { EdiTableType } from './EdiTable.types';
 import { ModalDataType } from './EdiTable.types';
@@ -24,6 +26,8 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [modalType, setModalType] = React.useState<ModalDataType>({ action: '', rowDeleteId: '' });
   const [width, setWidth] = React.useState(window.innerWidth);
+  const [loading, setLoading] = React.useState(true);
+  const { register, watch, reset } = useForm();
 
   const { firstContentIndex, lastContentIndex, nextPage, prevPage, page, setPage, totalPages } =
     usePagination({
@@ -36,6 +40,9 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
       .get(`/users`)
       .then((res) => {
         setRowsState(res.data);
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       })
       .catch((error) => console.error(error));
   }, []);
@@ -58,6 +65,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
   };
 
   const handleEdit = (rowID: string) => {
+    reset();
     setIsEditMode(true);
     setEditedRow(undefined);
     setRowIDToEdit(rowID);
@@ -68,16 +76,16 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
     setEditedRow({});
   };
 
-  const handleOnChangeField = (
-    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>,
-    rowID: string
-  ) => {
-    const { name: fieldName, value } = e.target;
-
-    setEditedRow({
+  const handleOnChangeField = (rowID: string) => {
+    const newData = {
       id: rowID,
-      [fieldName]: value,
-    });
+      name: watch('name'),
+      lastname: watch('lastname'),
+      username: watch('username'),
+      roles: watch('roles'),
+    };
+
+    setEditedRow(newData);
   };
 
   const handleSaveRowChanges = () => {
@@ -96,14 +104,13 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
 
     instance
       .put('/users/' + editedRow.id, editedRow)
-      .then((response) => {
-        console.log(response);
+      .then(() => {
+        setRowsState(newData);
       })
       .catch((error) => {
         console.log(error);
       });
 
-    setRowsState(newData);
     setEditedRow(undefined);
   };
 
@@ -129,73 +136,77 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
   };
 
   return (
-    <div className="p-1.5 w-full inline-block align-middle">
-      <div className="border rounded-lg overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-indigo-50">
-            <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.field}
-                  scope="col"
-                  className="px-3 py-3 text-xs font-bold text-left text-gray-500 uppercase"
-                >
-                  {column.fieldName}
-                  {column.field === 'name' ? (
-                    <ArrowsUpDownIcon
-                      className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => sortField('name')}
-                    />
-                  ) : (
-                    ''
-                  )}
-                  {column.field === 'lastname' ? (
-                    <ArrowsUpDownIcon
-                      className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => sortField('lastname')}
-                    />
-                  ) : (
-                    ''
-                  )}
-                  {column.field === 'username' ? (
-                    <ArrowsUpDownIcon
-                      className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => sortField('username')}
-                    />
-                  ) : (
-                    ''
-                  )}
-                  {column.field === 'company' ? (
-                    <ArrowsUpDownIcon
-                      className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => sortField('company')}
-                    />
-                  ) : (
-                    ''
-                  )}
-                  {column.field === 'roles' ? (
-                    <ArrowsUpDownIcon
-                      className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
-                      onClick={() => sortField('roles')}
-                    />
-                  ) : (
-                    ''
-                  )}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {rowsState.slice(firstContentIndex, lastContentIndex).map((row, i) => (
-              <tr key={row.id}>
-                <td className="px-3 py-3 text-sm font-medium text-gray-800 whitespace-nowrap">
-                  {i + 1}
-                </td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <input
-                      type="text"
-                      className="
+    <>
+      {loading ? (
+        <Preloader />
+      ) : (
+        <div className="p-1.5 w-full inline-block align-middle">
+          <div className="border rounded-lg overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-indigo-50">
+                <tr>
+                  {columns.map((column) => (
+                    <th
+                      key={column.field}
+                      scope="col"
+                      className="px-3 py-3 text-xs font-bold text-left text-gray-500 uppercase"
+                    >
+                      {column.fieldName}
+                      {column.field === 'name' ? (
+                        <ArrowsUpDownIcon
+                          className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
+                          onClick={() => sortField('name')}
+                        />
+                      ) : (
+                        ''
+                      )}
+                      {column.field === 'lastname' ? (
+                        <ArrowsUpDownIcon
+                          className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
+                          onClick={() => sortField('lastname')}
+                        />
+                      ) : (
+                        ''
+                      )}
+                      {column.field === 'username' ? (
+                        <ArrowsUpDownIcon
+                          className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
+                          onClick={() => sortField('username')}
+                        />
+                      ) : (
+                        ''
+                      )}
+                      {column.field === 'company' ? (
+                        <ArrowsUpDownIcon
+                          className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
+                          onClick={() => sortField('company')}
+                        />
+                      ) : (
+                        ''
+                      )}
+                      {column.field === 'roles' ? (
+                        <ArrowsUpDownIcon
+                          className="w-3 h-3 inline-block ml-3 cursor-pointer transition hover:rotate-180"
+                          onClick={() => sortField('roles')}
+                        />
+                      ) : (
+                        ''
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {rowsState.slice(firstContentIndex, lastContentIndex).map((row, i) => (
+                  <tr key={row.id}>
+                    <td className="px-3 py-3 text-sm font-medium text-gray-800 whitespace-nowrap">
+                      {i + 1}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <input
+                          type="text"
+                          className="
                   block
                   w-full
                   px-2
@@ -209,20 +220,21 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                   ease-in-out
                   m-0
                   focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                      defaultValue={editedRow ? editedRow.name : row.name}
-                      id={row.id}
-                      name="name"
-                      onChange={(e) => handleOnChangeField(e, row.id)}
-                    />
-                  ) : (
-                    row.name
-                  )}
-                </td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <input
-                      type="text"
-                      className="
+                          defaultValue={editedRow ? editedRow.name : row.name}
+                          id={row.id}
+                          {...register('name', {
+                            onChange: () => handleOnChangeField(row.id),
+                          })}
+                        />
+                      ) : (
+                        row.name
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <input
+                          type="text"
+                          className="
                 block
                 w-full
                 px-2
@@ -236,20 +248,21 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                 ease-in-out
                 m-0
                 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                      defaultValue={editedRow ? editedRow.lastname : row.lastname}
-                      id={row.id}
-                      name="lastname"
-                      onChange={(e) => handleOnChangeField(e, row.id)}
-                    />
-                  ) : (
-                    row.lastname
-                  )}
-                </td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <input
-                      type="text"
-                      className="
+                          defaultValue={editedRow ? editedRow.lastname : row.lastname}
+                          id={row.id}
+                          {...register('lastname', {
+                            onChange: () => handleOnChangeField(row.id),
+                          })}
+                        />
+                      ) : (
+                        row.lastname
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <input
+                          type="text"
+                          className="
                 block
                 w-full
                 px-2
@@ -263,19 +276,20 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                 ease-in-out
                 m-0
                 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                      defaultValue={editedRow ? editedRow.username : row.username}
-                      id={row.id}
-                      name="username"
-                      onChange={(e) => handleOnChangeField(e, row.id)}
-                    />
-                  ) : (
-                    row.username
-                  )}
-                </td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <select
-                      className="form-select appearance-none
+                          defaultValue={editedRow ? editedRow.username : row.username}
+                          id={row.id}
+                          {...register('username', {
+                            onChange: () => handleOnChangeField(row.id),
+                          })}
+                        />
+                      ) : (
+                        row.username
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <select
+                          className="form-select appearance-none
                 block
                 w-full
                 px-2
@@ -289,101 +303,109 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                 ease-in-out
                 m-0
                 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                      aria-label="Default select example"
-                      defaultValue={row.roles}
-                      name="roles"
-                      onChange={(e) => handleOnChangeField(e, row.id)}
-                    >
-                      <option defaultValue="ROLE_USER">ROLE_USER</option>
-                      <option defaultValue="ROLE_ADMIN">ROLE_ADMIN</option>
-                      <option defaultValue="ROLE_SUPERADMIN">ROLE_SUPERADMIN</option>
-                    </select>
-                  ) : (
-                    row.roles
-                  )}
-                </td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">{row.company}</td>
-                <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
-                  <div className="flex justify-center">
-                    <a href={row.images} target="_blank" rel="noreferrer">
-                      <PhotoIcon className="w-5 h-5 cursor-pointer transition hover:fill-slate-400" />
-                    </a>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap flex space-x-4">
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <DocumentCheckIcon
-                      className="w-5 h-5 cursor-pointer fill-green-400 hover:fill-green-500"
-                      onClick={() => handleSaveRowChanges()}
-                    />
-                  ) : (
-                    <PencilSquareIcon
-                      className="w-5 h-5 cursor-pointer transition hover:fill-green-400"
-                      onClick={() => handleEdit(row.id)}
-                    />
-                  )}
-                  {isEditMode && rowIDToEdit === row.id ? (
-                    <MinusCircleIcon
-                      className="w-5 h-5 cursor-pointer fill-red-400 hover:fill-red-500"
-                      onClick={() => handleCancelEditing()}
-                    />
-                  ) : (
-                    <TrashIcon
-                      className="w-5 h-5 cursor-pointer transition hover:fill-red-400"
-                      onClick={() => handleRemoveRow(row.id)}
-                    />
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-4 flex justify-between">
-        <div className="flex items-center space-x-4 mr-4">
-          <p className="text-sm text-gray-700 dark:text-gray-400">
-            <span className="font-semibold text-gray-900">{page}</span> /
-            <span className="font-semibold text-gray-900"> {totalPages}</span>
-          </p>
-          <div>
-            <button
-              onClick={prevPage}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-l border"
-            >
-              &larr;
-            </button>
-            {/* @ts-ignore */}
-            {[...Array(totalPages).keys()].map((el) => (
-              <button
-                onClick={() => setPage(el + 1)}
-                key={el}
-                className={`page ${
-                  page === el + 1
-                    ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold py-1 px-4 transition'
-                    : ''
-                } bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 transition border`}
-              >
-                {el + 1}
-              </button>
-            ))}
-            <button
-              onClick={nextPage}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-r border"
-            >
-              &rarr;
-            </button>
+                          aria-label="Default select example"
+                          defaultValue={row.roles}
+                          {...register('roles', {
+                            onChange: () => handleOnChangeField(row.id),
+                          })}
+                        >
+                          <option defaultValue="ROLE_USER">ROLE_USER</option>
+                          <option defaultValue="ROLE_ADMIN">ROLE_ADMIN</option>
+                          <option defaultValue="ROLE_SUPERADMIN">ROLE_SUPERADMIN</option>
+                        </select>
+                      ) : (
+                        row.roles
+                      )}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      {row.company}
+                    </td>
+                    <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
+                      <div className="flex justify-center">
+                        <a href={row.images} target="_blank" rel="noreferrer">
+                          <PhotoIcon className="w-5 h-5 cursor-pointer transition hover:fill-slate-400" />
+                        </a>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap flex space-x-4">
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <DocumentCheckIcon
+                          className="w-5 h-5 cursor-pointer fill-green-400 hover:fill-green-500"
+                          onClick={() => handleSaveRowChanges()}
+                        />
+                      ) : (
+                        <PencilSquareIcon
+                          className="w-5 h-5 cursor-pointer transition hover:fill-green-400"
+                          onClick={() => handleEdit(row.id)}
+                        />
+                      )}
+                      {isEditMode && rowIDToEdit === row.id ? (
+                        <MinusCircleIcon
+                          className="w-5 h-5 cursor-pointer fill-red-400 hover:fill-red-500"
+                          onClick={() => handleCancelEditing()}
+                        />
+                      ) : (
+                        <TrashIcon
+                          className="w-5 h-5 cursor-pointer transition hover:fill-red-400"
+                          onClick={() => handleRemoveRow(row.id)}
+                        />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          <div className="mt-4 flex justify-between">
+            <div className="flex items-center space-x-4 mr-4">
+              <p className="text-sm text-gray-700 dark:text-gray-400">
+                <span className="font-semibold text-gray-900">{page}</span> /
+                <span className="font-semibold text-gray-900"> {totalPages}</span>
+              </p>
+              <div>
+                <button
+                  onClick={prevPage}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-l border"
+                >
+                  &larr;
+                </button>
+                {/* @ts-ignore */}
+                {[...Array(totalPages).keys()].map((el) => (
+                  <button
+                    onClick={() => setPage(el + 1)}
+                    key={el}
+                    className={`page ${
+                      page === el + 1
+                        ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold py-1 px-4 transition'
+                        : ''
+                    } bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 transition border`}
+                  >
+                    {el + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={nextPage}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-r border"
+                >
+                  &rarr;
+                </button>
+              </div>
+            </div>
+            <Button
+              name={width < 700 ? '+' : 'Создать пользователя'}
+              onClickButton={() => addUser()}
+            />
+          </div>
+          <Modal
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            rowsState={rowsState}
+            setRowsState={setRowsState}
+            modalType={modalType}
+          />
         </div>
-        <Button name={width < 700 ? '+' : 'Создать пользователя'} onClickButton={() => addUser()} />
-      </div>
-      <Modal
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        rowsState={rowsState}
-        setRowsState={setRowsState}
-        modalType={modalType}
-      />
-    </div>
+      )}
+    </>
   );
 };
 

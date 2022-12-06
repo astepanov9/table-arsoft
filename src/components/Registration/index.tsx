@@ -5,9 +5,7 @@ import { instance } from '../../utils';
 import { RegistrationType } from './Registration.types';
 import { Inputs } from './Registration.types';
 
-
-
-const Registration: React.FC<RegistrationType> = ({ modalClose }) => {
+const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRowsState }) => {
   const {
     register,
     handleSubmit,
@@ -18,7 +16,8 @@ const Registration: React.FC<RegistrationType> = ({ modalClose }) => {
     instance
       .post('/users', data)
       .then((response) => {
-        alert('Пользователь ' + response.data.username + ' создан, обновите страницу');
+        const newData = [...rowsState, response.data];
+        setRowsState(newData);
       })
       .catch((error) => {
         console.log(error);
