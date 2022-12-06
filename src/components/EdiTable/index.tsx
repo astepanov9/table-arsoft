@@ -149,7 +149,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                     <th
                       key={column.field}
                       scope="col"
-                      className="px-3 py-3 text-xs font-bold text-left text-gray-500 uppercase"
+                      className="px-3 py-3 text-xs font-bold text-left text-gray-500 uppercase whitespace-nowrap"
                     >
                       {column.fieldName}
                       {column.field === 'name' ? (
@@ -358,14 +358,14 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
           </div>
           <div className="mt-4 flex justify-between">
             <div className="flex items-center space-x-4 mr-4">
-              <p className="text-sm text-gray-700 dark:text-gray-400">
+              <p className="text-sm text-gray-700">
                 <span className="font-semibold text-gray-900">{page}</span> /
                 <span className="font-semibold text-gray-900"> {totalPages}</span>
               </p>
               <div>
                 <button
                   onClick={prevPage}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-l border"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-l border"
                 >
                   &larr;
                 </button>
@@ -376,16 +376,16 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                     key={el}
                     className={`page ${
                       page === el + 1
-                        ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold py-1 px-4 transition'
+                        ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition'
                         : ''
-                    } bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 transition border`}
+                    } bg-blue-500 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition border`}
                   >
                     {el + 1}
                   </button>
                 ))}
                 <button
                   onClick={nextPage}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 transition rounded-r border"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-r border"
                 >
                   &rarr;
                 </button>
