@@ -13,9 +13,20 @@ export interface EdiTableType {
     field: string;
     fieldName: string;
   }[];
+  rowsState: Data[];
+  setRowsState: React.Dispatch<React.SetStateAction<Data[]>>;
+  loading: boolean;
 }
 
 export interface ModalDataType {
   action: '' | 'delete' | 'add';
   rowDeleteId: string;
+}
+
+export interface EditedRow {
+  id: string;
+  name: string;
+  lastname: string;
+  username: string;
+  roles: string;
 }

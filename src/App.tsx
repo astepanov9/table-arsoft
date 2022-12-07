@@ -1,8 +1,25 @@
 import React from 'react';
 
 import EdiTable from './components/EdiTable';
+import { instance } from './utils';
+import { Data } from './components/EdiTable/EdiTable.types';
 
 const App: React.FC = () => {
+  const [rowsState, setRowsState] = React.useState<Data[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    instance
+      .get(`/users`)
+      .then((res) => {
+        setRowsState(res.data);
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+      })
+      .catch((error) => console.error(error));
+  }, []);
+
   const columns = [
     { field: 'id', fieldName: '#' },
     { field: 'name', fieldName: 'Имя' },
@@ -21,7 +38,12 @@ const App: React.FC = () => {
           <h1 className="text-xl text-center font-semibold">Table ArSoft</h1>
         </div>
         <div className="mt-4">
-          <EdiTable columns={columns} />
+          <EdiTable
+            columns={columns}
+            rowsState={rowsState}
+            setRowsState={setRowsState}
+            loading={loading}
+          />
         </div>
       </main>
     </div>

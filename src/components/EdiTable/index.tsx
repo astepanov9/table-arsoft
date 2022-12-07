@@ -12,21 +12,20 @@ import { useForm } from 'react-hook-form';
 import { instance } from '../../utils';
 import Button from '../Button';
 import Modal from '../Modal';
+import Pagination from '../Pagination';
 import usePagination from '../../hooks/usePagination';
 import Preloader from '../Preloader';
-import { Data } from './EdiTable.types';
 import { EdiTableType } from './EdiTable.types';
 import { ModalDataType } from './EdiTable.types';
+import { EditedRow } from './EdiTable.types';
 
-const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
+const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, loading }) => {
   const [isEditMode, setIsEditMode] = React.useState(false);
   const [rowIDToEdit, setRowIDToEdit] = React.useState<string | undefined>(undefined);
-  const [rowsState, setRowsState] = React.useState<Data[]>([]);
-  const [editedRow, setEditedRow] = React.useState<any>();
+  const [editedRow, setEditedRow] = React.useState<EditedRow | undefined>(undefined);
   const [isOpen, setIsOpen] = React.useState(false);
   const [modalType, setModalType] = React.useState<ModalDataType>({ action: '', rowDeleteId: '' });
   const [width, setWidth] = React.useState(window.innerWidth);
-  const [loading, setLoading] = React.useState(true);
   const { register, watch, reset } = useForm();
 
   const { firstContentIndex, lastContentIndex, nextPage, prevPage, page, setPage, totalPages } =
@@ -34,18 +33,6 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
       contentPerPage: 4,
       count: rowsState.length,
     });
-
-  React.useEffect(() => {
-    instance
-      .get(`/users`)
-      .then((res) => {
-        setRowsState(res.data);
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      })
-      .catch((error) => console.error(error));
-  }, []);
 
   React.useEffect(() => {
     window.addEventListener('resize', updateWidthAndHeight);
@@ -73,7 +60,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
 
   const handleCancelEditing = () => {
     setIsEditMode(false);
-    setEditedRow({});
+    setEditedRow(undefined);
   };
 
   const handleOnChangeField = (rowID: string) => {
@@ -92,7 +79,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
     setIsEditMode(false);
 
     const newData = rowsState.map((row) => {
-      if (row.id === editedRow.id) {
+      if (row.id === editedRow?.id) {
         if (editedRow.name) row.name = editedRow.name;
         if (editedRow.lastname) row.lastname = editedRow.lastname;
         if (editedRow.username) row.username = editedRow.username;
@@ -103,7 +90,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
     });
 
     instance
-      .put('/users/' + editedRow.id, editedRow)
+      .put('/users/' + editedRow?.id, editedRow)
       .then(() => {
         setRowsState(newData);
       })
@@ -200,7 +187,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
                 {rowsState.slice(firstContentIndex, lastContentIndex).map((row, i) => (
                   <tr key={row.id}>
                     <td className="px-3 py-3 text-sm font-medium text-gray-800 whitespace-nowrap">
-                      {i + 1}
+                      {(firstContentIndex + 1) + i}
                     </td>
                     <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
                       {isEditMode && rowIDToEdit === row.id ? (
@@ -357,40 +344,13 @@ const EdiTable: React.FC<EdiTableType> = ({ columns }) => {
             </table>
           </div>
           <div className="mt-4 flex justify-between">
-            <div className="flex items-center space-x-4 mr-4">
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold text-gray-900">{page}</span> /
-                <span className="font-semibold text-gray-900"> {totalPages}</span>
-              </p>
-              <div>
-                <button
-                  onClick={prevPage}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-l border"
-                >
-                  &larr;
-                </button>
-                {/* @ts-ignore */}
-                {[...Array(totalPages).keys()].map((el) => (
-                  <button
-                    onClick={() => setPage(el + 1)}
-                    key={el}
-                    className={`page ${
-                      page === el + 1
-                        ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition'
-                        : ''
-                    } bg-blue-500 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition border`}
-                  >
-                    {el + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={nextPage}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-r border"
-                >
-                  &rarr;
-                </button>
-              </div>
-            </div>
+            <Pagination
+              nextPage={nextPage}
+              prevPage={prevPage}
+              page={page}
+              setPage={setPage}
+              totalPages={totalPages}
+            />
             <Button
               name={width < 700 ? '+' : 'Создать пользователя'}
               onClickButton={() => addUser()}
