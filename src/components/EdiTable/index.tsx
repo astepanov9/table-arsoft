@@ -15,6 +15,7 @@ import Modal from '../Modal';
 import Pagination from '../Pagination';
 import usePagination from '../../hooks/usePagination';
 import Preloader from '../Preloader';
+import AppContext from '../../context/context';
 import { EdiTableType } from './EdiTable.types';
 import { ModalDataType } from './EdiTable.types';
 import { EditedRow } from './EdiTable.types';
@@ -27,6 +28,17 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
   const [modalType, setModalType] = React.useState<ModalDataType>({ action: '', rowDeleteId: '' });
   const [width, setWidth] = React.useState(window.innerWidth);
   const { register, watch, reset } = useForm();
+
+  const { setVisible, setStatus, setTitle } = React.useContext(AppContext);
+
+  const toastEdit = () => {
+    setVisible(true);
+    setTitle('Отредактировано');
+    setStatus('success');
+    setTimeout(() => {
+      setVisible(false);
+    }, 5000);
+  };
 
   const { firstContentIndex, lastContentIndex, nextPage, prevPage, page, setPage, totalPages } =
     usePagination({
@@ -93,6 +105,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
       .put('/users/' + editedRow?.id, editedRow)
       .then(() => {
         setRowsState(newData);
+        toastEdit();
       })
       .catch((error) => {
         console.log(error);
@@ -187,7 +200,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
                 {rowsState.slice(firstContentIndex, lastContentIndex).map((row, i) => (
                   <tr key={row.id}>
                     <td className="px-3 py-3 text-sm font-medium text-gray-800 whitespace-nowrap">
-                      {(firstContentIndex + 1) + i}
+                      {firstContentIndex + 1 + i}
                     </td>
                     <td className="px-3 py-3 text-sm text-gray-800 whitespace-nowrap">
                       {isEditMode && rowIDToEdit === row.id ? (

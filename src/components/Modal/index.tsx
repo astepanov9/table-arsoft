@@ -4,11 +4,22 @@ import { Dialog, Transition } from '@headlessui/react';
 import { instance } from '../../utils';
 import Button from '../Button';
 import Registration from '../Registration';
+import AppContext from '../../context/context';
 import { ModalType } from './Modal.types';
 
 const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState, modalType }) => {
+  const { setVisible, setStatus, setTitle } = React.useContext(AppContext);
   const closeModal = () => {
     setIsOpen(false);
+  };
+
+  const toastRemove = () => {
+    setVisible(true);
+    setTitle('Пользователь удален');
+    setStatus('error');
+    setTimeout(() => {
+      setVisible(false);
+    }, 5000);
   };
 
   const removeRow = () => {
@@ -16,11 +27,12 @@ const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState
       return row.id !== modalType.rowDeleteId ? row : null;
     });
 
-    setRowsState(newData);
-
     instance
       .delete('/users/' + modalType.rowDeleteId)
-      .then((res) => console.log('Пользователь ' + res.data.username + ' удален'))
+      .then(() => {
+        setRowsState(newData);
+        toastRemove();
+      })
       .catch((error) => console.error(error));
 
     setIsOpen(false);
@@ -112,7 +124,11 @@ const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState
                       Создание пользователя
                     </Dialog.Title>
                     <div className="mt-2">
-                      <Registration modalClose={setIsOpen} rowsState={rowsState} setRowsState={setRowsState} />
+                      <Registration
+                        modalClose={setIsOpen}
+                        rowsState={rowsState}
+                        setRowsState={setRowsState}
+                      />
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>
