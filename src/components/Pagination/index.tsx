@@ -18,7 +18,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <div>
         <button
           onClick={prevPage}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-l border"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-l"
         >
           &larr;
         </button>
@@ -31,14 +31,14 @@ const Pagination: React.FC<PaginationProps> = ({
               page === el + 1
                 ? 'bg-blue-700 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition'
                 : ''
-            } bg-blue-500 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition border`}
+            } bg-blue-500 hover:bg-blue-700 text-white font-bold px-3 py-1 sm:py-1 sm:px-4 transition`}
           >
             {el + 1}
           </button>
         ))}
         <button
           onClick={nextPage}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-r border"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 py-1 sm:py-1 sm:px-3 transition rounded-r"
         >
           &rarr;
         </button>

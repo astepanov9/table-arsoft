@@ -29,4 +29,16 @@ export interface EditedRow {
   lastname: string;
   username: string;
   roles: string;
+  company: string;
+}
+
+export enum RolesPropertyEnum {
+  ROLE_USER = 'Пользователь',
+  ROLE_ADMIN = 'Администратор',
+  ROLE_SUPERADMIN = 'Суперпользователь',
+}
+
+export interface RolesListObj {
+  name: string;
+  translate: RolesPropertyEnum;
 }
