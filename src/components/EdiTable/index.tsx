@@ -39,11 +39,11 @@ export const roleList: RolesListObj[] = [
 ];
 
 const rolesTranslate = (role: string) => {
-  let ruRole = 'Не удалось определить';
-  if (role === 'ROLE_USER') ruRole = RolesPropertyEnum.ROLE_USER;
-  if (role === 'ROLE_ADMIN') ruRole = RolesPropertyEnum.ROLE_ADMIN;
-  if (role === 'ROLE_SUPERADMIN') ruRole = RolesPropertyEnum.ROLE_SUPERADMIN;
-  return ruRole;
+  const roleName = roleList.map((obj) => {
+    if (obj.name === role) return obj.translate;
+  });
+
+  return roleName;
 };
 
 const downloadImage = async (imageSrc: string) => {

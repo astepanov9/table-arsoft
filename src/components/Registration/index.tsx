@@ -42,11 +42,11 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-4">
-          {errors.name && (
-            <p className="text-red-500 text-xs">Введите имя (только буквы, 3-20 символов)</p>
-          )}
           <label className="block text-gray-700 text-sm font-bold">
             Имя:
+            {errors.name && (
+              <p className="text-red-500 text-xs font-light">Введите имя (только буквы, 3-20 символов)</p>
+            )}
             <input
               type="text"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
@@ -55,17 +55,17 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
                 required: true,
                 minLength: 3,
                 maxLength: 20,
-                pattern: /[a-zа-яё]/,
+                pattern: /^[a-zA-Zа-яА-Я'][a-zA-Zа-яА-Я-' ]+[a-zA-Zа-яА-Я']?$/u,
               })}
             />
           </label>
         </div>
         <div className="mb-4">
-          {errors.lastname && (
-            <p className="text-red-500 text-xs">Введите фамилию (только буквы, 3-20 символов)</p>
-          )}
           <label className="block text-gray-700 text-sm font-bold">
             Фамилия:
+            {errors.lastname && (
+              <p className="text-red-500 text-xs font-light">Введите фамилию (только буквы, 3-20 символов)</p>
+            )}
             <input
               type="text"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
@@ -74,17 +74,17 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
                 required: true,
                 minLength: 3,
                 maxLength: 20,
-                pattern: /[a-zа-яё]/,
+                pattern: /^[a-zA-Zа-яА-Я'][a-zA-Zа-яА-Я-' ]+[a-zA-Zа-яА-Я']?$/u,
               })}
             />
           </label>
         </div>
         <div className="mb-4">
-          {errors.username && (
-            <p className="text-red-500 text-xs">Введите username (3-20 символов)</p>
-          )}
           <label className="block text-gray-700 text-sm font-bold">
             Username:
+            {errors.username && (
+              <p className="text-red-500 text-xs font-light">Введите username (3-20 символов)</p>
+            )}
             <input
               type="text"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
@@ -94,14 +94,14 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
           </label>
         </div>
         <div className="mb-4">
-          {errors.password && (
-            <p className="text-red-500 text-xs">
-              Введите пароль (от 6 символов с использованием цифр, спец. символов, латиницы,
-              наличием строчных и прописных символов)
-            </p>
-          )}
           <label className="block text-gray-700 text-sm font-bold">
             Пароль:
+            {errors.password && (
+              <p className="text-red-500 text-xs font-light">
+                Введите пароль (от 6 символов с использованием цифр, спец. символов, латиницы,
+                наличием строчных и прописных символов)
+              </p>
+            )}
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
               type="password"
@@ -116,9 +116,9 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
           </label>
         </div>
         <div className="mb-4">
-          {errors.roles && <p className="text-red-500 text-xs">Выберите роль из списка</p>}
           <label className="block text-gray-700 text-sm font-bold">
             Роль:
+            {errors.roles && <p className="text-red-500 text-xs font-light">Выберите роль из списка</p>}
             <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
               style={{ borderColor: errors.roles && 'red' }}
@@ -138,24 +138,24 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
           </label>
         </div>
         <div className="mb-4">
-          {errors.company && <p className="text-red-500 text-xs">Выберите организацию из списка</p>}
           <label className="block text-gray-700 text-sm font-bold">
             Организация:
+            {errors.company && (
+              <p className="text-red-500 text-xs font-light">Выберите организацию из списка</p>
+            )}
             <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
               style={{ borderColor: errors.company && 'red' }}
               {...register('company', {
                 required: true,
                 validate: (value) =>
-                  value === 'Koss LLC' ||
-                  value === 'ArSoft' ||
-                  value === 'Dickens, Kautzer and Schmidt',
+                  value === 'Koss LLC' || value === 'ArSoft' || value === 'Kautzer and Schmidt',
               })}
             >
-              <option defaultValue="Выберите организацию">Выберите организацию</option>
-              <option defaultValue="Koss LLC">Koss LLC</option>
-              <option defaultValue="ArSoft">ArSoft</option>
-              <option defaultValue="Kautzer and Schmidt">Kautzer and Schmidt</option>
+              <option value="Выберите организацию">Выберите организацию</option>
+              <option value="Koss LLC">Koss LLC</option>
+              <option value="ArSoft">ArSoft</option>
+              <option value="Kautzer and Schmidt">Kautzer and Schmidt</option>
             </select>
           </label>
         </div>
