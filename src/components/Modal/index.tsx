@@ -6,9 +6,13 @@ import Button from '../Button';
 import Registration from '../Registration';
 import AppContext from '../../context/context';
 import { ModalType } from './Modal.types';
+import { useDeleteUsersMutation } from '../../redux';
 
 const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState, modalType }) => {
   const { setVisible, setStatus, setTitle } = React.useContext(AppContext);
+
+  const [deleteUser] = useDeleteUsersMutation();
+
   const closeModal = () => {
     setIsOpen(false);
   };
@@ -22,19 +26,17 @@ const Modal: React.FC<ModalType> = ({ isOpen, setIsOpen, rowsState, setRowsState
     }, 5000);
   };
 
-  const removeRow = () => {
+  const removeRow = async () => {
     const newData = rowsState.filter((row) => {
       return row.id !== modalType.rowDeleteId ? row : null;
     });
 
-    instance
-      .delete('/users/' + modalType.rowDeleteId)
+    await deleteUser(modalType.rowDeleteId)
       .then(() => {
         setRowsState(newData);
         toastRemove();
       })
       .catch((error) => console.error(error));
-
     setIsOpen(false);
   };
 

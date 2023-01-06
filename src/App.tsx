@@ -1,10 +1,21 @@
 import React from 'react';
 
 import EdiTable from './components/EdiTable';
-import { instance } from './utils';
 import { Data } from './components/EdiTable/EdiTable.types';
 import Toast from './components/Toast';
 import AppContext from './context/context';
+import { useGetUsersQuery } from './redux';
+
+const columns = [
+  { field: 'id', fieldName: '#' },
+  { field: 'name', fieldName: 'Имя' },
+  { field: 'lastname', fieldName: 'Фамилия' },
+  { field: 'username', fieldName: 'Username' },
+  { field: 'roles', fieldName: 'Роль' },
+  { field: 'company', fieldName: 'Организация' },
+  { field: 'image', fieldName: 'Изображения' },
+  { field: 'actions', fieldName: '' },
+];
 
 const App: React.FC = () => {
   const [rowsState, setRowsState] = React.useState<Data[]>([]);
@@ -13,28 +24,15 @@ const App: React.FC = () => {
   const [status, setStatus] = React.useState('success');
   const [title, setTitle] = React.useState('Пользователь добавлен');
 
+  const { data, isLoading } = useGetUsersQuery('');
+
   React.useEffect(() => {
-    instance
-      .get(`/users`)
-      .then((res) => {
-        setRowsState(res.data);
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      })
-      .catch((error) => console.error(error));
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
   }, []);
 
-  const columns = [
-    { field: 'id', fieldName: '#' },
-    { field: 'name', fieldName: 'Имя' },
-    { field: 'lastname', fieldName: 'Фамилия' },
-    { field: 'username', fieldName: 'Username' },
-    { field: 'roles', fieldName: 'Роль' },
-    { field: 'company', fieldName: 'Организация' },
-    { field: 'image', fieldName: 'Изображения' },
-    { field: 'actions', fieldName: '' },
-  ];
+  if (isLoading) return <></>;
 
   return (
     <AppContext.Provider
@@ -55,7 +53,7 @@ const App: React.FC = () => {
           <div className="mt-4">
             <EdiTable
               columns={columns}
-              rowsState={rowsState}
+              rowsState={data}
               setRowsState={setRowsState}
               loading={loading}
             />

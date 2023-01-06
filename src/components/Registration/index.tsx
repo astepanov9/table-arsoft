@@ -6,6 +6,7 @@ import { roleList } from '../EdiTable';
 import AppContext from '../../context/context';
 import { RegistrationType } from './Registration.types';
 import { Inputs } from './Registration.types';
+import { useAddUsersMutation } from '../../redux';
 
 const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRowsState }) => {
   const { setVisible, setStatus, setTitle } = React.useContext(AppContext);
@@ -14,6 +15,8 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+
+  const [addUser] = useAddUsersMutation();
 
   const toastSuccess = () => {
     setVisible(true);
@@ -24,11 +27,24 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
     }, 5000);
   };
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  /* const onSubmit: SubmitHandler<Inputs> = (data) => {
     instance
       .post('/users', data)
       .then((response) => {
         const newData = [...rowsState, response.data];
+        setRowsState(newData);
+        toastSuccess();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    modalClose(false);
+  }; */
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    await addUser(data)
+      .then(() => {
+        const newData = [...rowsState, data];
         setRowsState(newData);
         toastSuccess();
       })
@@ -45,7 +61,9 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
           <label className="block text-gray-700 text-sm font-bold">
             Имя:
             {errors.name && (
-              <p className="text-red-500 text-xs font-light">Введите имя (только буквы, 3-20 символов)</p>
+              <p className="text-red-500 text-xs font-light">
+                Введите имя (только буквы, 3-20 символов)
+              </p>
             )}
             <input
               type="text"
@@ -64,7 +82,9 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
           <label className="block text-gray-700 text-sm font-bold">
             Фамилия:
             {errors.lastname && (
-              <p className="text-red-500 text-xs font-light">Введите фамилию (только буквы, 3-20 символов)</p>
+              <p className="text-red-500 text-xs font-light">
+                Введите фамилию (только буквы, 3-20 символов)
+              </p>
             )}
             <input
               type="text"
@@ -118,7 +138,9 @@ const Registration: React.FC<RegistrationType> = ({ modalClose, rowsState, setRo
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold">
             Роль:
-            {errors.roles && <p className="text-red-500 text-xs font-light">Выберите роль из списка</p>}
+            {errors.roles && (
+              <p className="text-red-500 text-xs font-light">Выберите роль из списка</p>
+            )}
             <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 font-light leading-tight focus:outline-none focus:shadow-outline mt-2"
               style={{ borderColor: errors.roles && 'red' }}

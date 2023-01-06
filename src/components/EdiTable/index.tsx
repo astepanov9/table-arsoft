@@ -22,6 +22,7 @@ import { ModalDataType } from './EdiTable.types';
 import { EditedRow } from './EdiTable.types';
 import { RolesPropertyEnum } from './EdiTable.types';
 import { RolesListObj } from './EdiTable.types';
+import { useEditUsersMutation } from '../../redux';
 
 export const roleList: RolesListObj[] = [
   {
@@ -76,6 +77,8 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
       count: rowsState.length,
     });
 
+  const [editUser] = useEditUsersMutation();
+
   React.useEffect(() => {
     window.addEventListener('resize', updateWidthAndHeight);
     return () => window.removeEventListener('resize', updateWidthAndHeight);
@@ -118,7 +121,7 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
   };
 
   const handleSaveRowChanges = () => {
-    const saveRow = () => {
+    const saveRow = async () => {
       instance
         .put('/users/' + editedRow?.id, editedRow)
         .then(() => {
@@ -128,6 +131,14 @@ const EdiTable: React.FC<EdiTableType> = ({ columns, rowsState, setRowsState, lo
         .catch((error) => {
           console.log(error);
         });
+      /* await editUser(editedRow)
+        .then(() => {
+          setRowsState(newData);
+          toastEdit();
+        })
+        .catch((error) => {
+          console.log(error);
+        }); */
 
       setIsEditMode(false);
       setEditedRow(undefined);
