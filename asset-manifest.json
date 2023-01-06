@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/table-arsoft/static/css/main.8d3cd468.css",
-    "main.js": "/table-arsoft/static/js/main.2a46273c.js",
+    "main.js": "/table-arsoft/static/js/main.bebbcbb7.js",
     "index.html": "/table-arsoft/index.html",
     "main.8d3cd468.css.map": "/table-arsoft/static/css/main.8d3cd468.css.map",
-    "main.2a46273c.js.map": "/table-arsoft/static/js/main.2a46273c.js.map"
+    "main.bebbcbb7.js.map": "/table-arsoft/static/js/main.bebbcbb7.js.map"
   },
   "entrypoints": [
     "static/css/main.8d3cd468.css",
-    "static/js/main.2a46273c.js"
+    "static/js/main.bebbcbb7.js"
   ]
 }
